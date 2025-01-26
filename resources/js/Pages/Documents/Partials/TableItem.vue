@@ -43,6 +43,7 @@ defineEmits(['update']);
     <tr class="border-b dark:border-gray-700 overflow-visible cursor-pointer" @click="$emit('update', item)">
         <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ item.human_readable_created_at }}</th>
         <td class="px-4 py-3">{{ item.user.name }}</td>
+        <td class="px-4 py-3">{{ item.folder }}</td>
         <td class="px-4 py-3">
             <a :href="route('documents.download', item.id)" class="text-blue-500 hover:underline">{{ item.file_name }}</a>
         </td>

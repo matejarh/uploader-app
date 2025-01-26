@@ -35,6 +35,7 @@ const handleUpdate = (document) => {
                             <tr>
                                 <th scope="col" class="px-4 py-3">Datum</th>
                                 <th scope="col" class="px-4 py-3">Stranka</th>
+                                <th scope="col" class="px-4 py-3">Mapa</th>
                                 <th scope="col" class="px-4 py-3">Datoteka</th>
 
                                 <th scope="col" class="px-4 py-3">

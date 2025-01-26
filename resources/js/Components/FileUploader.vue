@@ -2,13 +2,17 @@
 import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import { Cog6ToothIcon } from '@heroicons/vue/24/outline';
+import DropdownComponent from '@/Components/DropdownComponent.vue';
+import InputLabel from '@/Components/InputLabel.vue';
 
 const selectedFile = ref(null);
 
 const emit = defineEmits(['fileUploaded']);
+const folder = ref('inbox');
 
 const form = useForm({
   file: null,
+  folder: folder.value,
 });
 
 const handleFileUpload = (event) => {
@@ -77,7 +81,10 @@ const handleDragOver = (event) => {
 <template>
   <div class="p-6">
     <!-- <h2 class="text-xl font-bold mb-4">{{ __('Upload Your File') }}</h2> -->
-
+    <div class="mb-4">
+        <InputLabel for="name" :value="__('Select Folder')" />
+      <DropdownComponent :options="['inbox', 'outbox']" v-model="form.folder" class="w-full" />
+    </div>
 
     <div class="flex items-center justify-center w-full"
         @drop="handleDrop"

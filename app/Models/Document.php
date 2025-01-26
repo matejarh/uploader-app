@@ -12,6 +12,7 @@ class Document extends Model
         'file_name',
         'file_path',
         'file_mime_type',
+        'folder',
     ];
 
     protected $appends = [
@@ -62,7 +63,7 @@ class Document extends Model
                 $query->where('email', 'like', '%' . $najdi . '%')
                       ->orWhere('name', 'like', '%' . $najdi . '%');
             })->orWhere(function ($query) use ($najdi) {
-                $query->where('file_name', 'like', '%' . $najdi . '%');
+                $query->where('file_name', 'like', '%' . $najdi . '%')->orWhere('folder', 'like', '%' . $najdi . '%');
             });
         });
     }

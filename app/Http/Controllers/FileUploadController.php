@@ -30,8 +30,8 @@ class FileUploadController extends Controller
             return Redirect::back()->withErrors(['file' => __('A file with the same content already exists in storage.')]);
         }
 
-        $storedFilePath = $this->storeFile($file, $userFolder, $fileName);
-        $document = $this->saveFileRecord($file, $storedFilePath);
+        $storedFilePath = $this->storeFile($file, $userFolder, $fileName, $request->folder);
+        $document = $this->saveFileRecord($file, $storedFilePath, $request->folder);
 
         $this->notifyAdmin($document);
 
@@ -96,9 +96,9 @@ class FileUploadController extends Controller
      * @param string $fileName
      * @return string
      */
-    protected function storeFile($file, $userFolder, $fileName)
+    protected function storeFile($file, $userFolder, $fileName, $folder = 'inbox')
     {
-        return $file->storeAs($userFolder, $fileName, 'local');
+        return $file->storeAs("$userFolder/$folder", $fileName, 'local');
     }
 
     /**
@@ -108,13 +108,14 @@ class FileUploadController extends Controller
      * @param string $storedFilePath
      * @return \App\Models\Document
      */
-    protected function saveFileRecord($file, $storedFilePath)
+    protected function saveFileRecord($file, $storedFilePath, $folder = 'inbox')
     {
         return Document::create([
             'user_id' => auth()->id(),
             'file_name' => $file->getClientOriginalName(),
             'file_path' => $storedFilePath,
             'file_mime_type' => $file->getMimeType(),
+            'folder' => $folder,
         ]);
     }
 

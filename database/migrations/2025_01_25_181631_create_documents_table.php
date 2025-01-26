@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('file_name');
             $table->string('file_path');
             $table->string('file_mime_type');
+            $table->string('folder')->default('inbox');
             $table->timestamps();
 
             $table->index('user_id');
