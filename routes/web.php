@@ -34,5 +34,5 @@ Route::middleware([
     Route::get('/documents/{document}/download', [DocumentsController::class, 'download'])->name('documents.download');
     Route::delete('/documents/{document}', [DocumentsController::class, 'destroy'])->name('documents.destroy');
 
-    Route::post('/upload', [FileUploadController::class, 'upload'])->middleware(['role_or_permission:upload documents'])->name('upload');
+    Route::post('/upload', [FileUploadController::class, 'upload'])->middleware(['role_or_permission:upload documents', 'throttle:10,1'])->name('upload');
 });
