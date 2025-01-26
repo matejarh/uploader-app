@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
+import { Cog6ToothIcon } from '@heroicons/vue/24/outline';
 
 const selectedFile = ref(null);
 
@@ -11,8 +12,25 @@ const form = useForm({
 });
 
 const handleFileUpload = (event) => {
-  selectedFile.value = event.target.files[0];
-  form.file = selectedFile.value;
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    const maxSize = 2 * 1024 * 1024; // 2MB
+
+    if (!allowedTypes.includes(file.type)) {
+        alert('Invalid file type. Only PDF, DOC, and DOCX are allowed.');
+        return;
+    }
+
+    if (file.size > maxSize) {
+        alert('File is too large. Maximum size is 2MB.');
+        return;
+    }
+
+    //selectedFile.value = event.target.files[0];
+    selectedFile.value = file;
+    form.file = selectedFile.value;
 };
 
 const submitFile = () => {
@@ -84,6 +102,7 @@ const handleDragOver = (event) => {
 
    <!--  <input type="file" @change="handleFileUpload" class="mb-4" /> -->
     <button @click="submitFile" :disabled="form.processing" class="px-4 py-2 bg-blue-600 text-white rounded-md w-full">
+        <Cog6ToothIcon class="w-4 h-4 inline-block animate-spin" v-if="form.processing" />
       {{ form.processing ? __('Uploading...') : __('Upload') }}
     </button>
     <div v-if="form.progress" class="mt-4">
