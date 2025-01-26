@@ -14,7 +14,7 @@ class UsersController extends Controller
     {
         $this->middleware = [
             'index' => ['permission:view all users'],
-            'show' => ['permission:view self'],
+            'show' => ['permission:view self', 'permission:view all users'],
             'destroy' => ['permission:delete users'],
         ];
     }
