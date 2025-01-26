@@ -1,12 +1,13 @@
 <script setup>
 import { ref } from 'vue';
+import { router } from '@inertiajs/vue3'
 import { usePage, useForm } from '@inertiajs/vue3';
 import { TrashIcon } from '@heroicons/vue/24/solid';
 import DialogModal from '@/Components/DialogModal.vue';
 import DangerButton from '@/Components/DangerButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 
-const { props } = usePage();
+/* const { props } = usePage(); */
 
 const confirmingUserDeletion = ref(false);
 const userToDelete = ref(null);
@@ -32,15 +33,19 @@ const closeModal = () => {
     userToDelete.value = null;
 };
 
-defineProps({
+const showUser = () => {
+    router.visit(route('users.show', props.item.id));
+};
+
+const props = defineProps({
     item: Object,
 });
 
-defineEmits(['update']);
+defineEmits(['show']);
 </script>
 
 <template>
-    <tr class="border-b dark:border-gray-700 overflow-visible cursor-pointer" @click="$emit('update', item)">
+    <tr class="border-b dark:border-gray-700 overflow-visible cursor-pointer" @click="showUser">
         <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ item.human_readable_created_at }}</th>
         <td class="px-4 py-3">{{ item.name }}</td>
         <td class="px-4 py-3">

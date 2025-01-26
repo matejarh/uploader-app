@@ -16,7 +16,7 @@ const showUpdateDialog = ref(false)
 
 const updatingDocument = ref({})
 
-const handleUpdate = (document) => {
+const handleShow = (document) => {
     updatingDocument.value = document
     showUpdateDialog.value = true
 }
@@ -44,7 +44,7 @@ const handleUpdate = (document) => {
                         </thead>
                         <tbody class="[&>*:nth-child(even)]:bg-gray-50 dark:[&>*:nth-child(even)]:bg-gray-700">
                             <TableItem v-for="item, key in list.data" :key="key" :item="item"
-                                @update="handleUpdate" />
+                                @show="handleShow" />
                         </tbody>
                     </table>
                 </div>
