@@ -44,11 +44,11 @@ class HandleInertiaRequests extends Middleware
                     resource_path('../lang/'. app()->getLocale() .'.json')
                 );
             },
-            'auth' => function () {
+            /* 'auth' => function () {
                 return [
-                    'user' => auth()->user() ? auth()->user()->load('roles') : null,
+                    'user' => auth()->user()?->load(['roles']),
                 ];
             },
-        ]);
+ */        ]);
     }
 }

@@ -56,8 +56,10 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $appends = [
         'profile_photo_url',
-        'human_readable_created_at'
+        'human_readable_created_at',
     ];
+
+    protected $with = ['roles'];
 
     protected static function boot()
     {

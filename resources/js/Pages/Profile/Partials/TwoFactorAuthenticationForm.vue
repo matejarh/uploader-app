@@ -189,7 +189,7 @@ const disableTwoFactorAuthentication = () => {
 
             <div class="mt-5">
                 <div v-if="! twoFactorEnabled">
-                    <ConfirmsPassword :title="__('Confirm Password')" :content="__('For your security, please confirm your password to continue.')" :button="__('Confirm')" @confirmed="enableTwoFactorAuthentication">
+                    <ConfirmsPassword :title="__('Confirm Password')" :content="__('For your security, please confirm your password to continue.')"  @confirmed="enableTwoFactorAuthentication">
                         <PrimaryButton type="button" :class="{ 'opacity-25': enabling }" :disabled="enabling">
                             {{ __('Enable') }}
                         </PrimaryButton>
@@ -197,7 +197,7 @@ const disableTwoFactorAuthentication = () => {
                 </div>
 
                 <div v-else>
-                    <ConfirmsPassword :title="__('Confirm Password')" :content="__('For your security, please confirm your password to continue.')" :button="__('Confirm')" @confirmed="confirmTwoFactorAuthentication">
+                    <ConfirmsPassword :title="__('Confirm Password')" :content="__('For your security, please confirm your password to continue.')"  @confirmed="confirmTwoFactorAuthentication">
                         <PrimaryButton
                             v-if="confirming"
                             type="button"
@@ -209,7 +209,7 @@ const disableTwoFactorAuthentication = () => {
                         </PrimaryButton>
                     </ConfirmsPassword>
 
-                    <ConfirmsPassword :title="__('Confirm Password')" :content="__('For your security, please confirm your password to continue.')" :button="__('Confirm')" @confirmed="regenerateRecoveryCodes">
+                    <ConfirmsPassword :title="__('Confirm Password')" :content="__('For your security, please confirm your password to continue.')"  @confirmed="regenerateRecoveryCodes">
                         <SecondaryButton
                             v-if="recoveryCodes.length > 0 && ! confirming"
                             class="me-3"
@@ -218,7 +218,7 @@ const disableTwoFactorAuthentication = () => {
                         </SecondaryButton>
                     </ConfirmsPassword>
 
-                    <ConfirmsPassword :title="__('Confirm Password')" :content="__('For your security, please confirm your password to continue.')" :button="__('Confirm')" @confirmed="showRecoveryCodes">
+                    <ConfirmsPassword :title="__('Confirm Password')" :content="__('For your security, please confirm your password to continue.')"  @confirmed="showRecoveryCodes">
                         <SecondaryButton
                             v-if="recoveryCodes.length === 0 && ! confirming"
                             class="me-3"
@@ -227,7 +227,7 @@ const disableTwoFactorAuthentication = () => {
                         </SecondaryButton>
                     </ConfirmsPassword>
 
-                    <ConfirmsPassword :title="__('Confirm Password')" :content="__('For your security, please confirm your password to continue.')" :button="__('Confirm')" @confirmed="disableTwoFactorAuthentication">
+                    <ConfirmsPassword :title="__('Confirm Password')" :content="__('For your security, please confirm your password to continue.')"  @confirmed="disableTwoFactorAuthentication">
                         <SecondaryButton
                             v-if="confirming"
                             :class="{ 'opacity-25': disabling }"
@@ -237,7 +237,7 @@ const disableTwoFactorAuthentication = () => {
                         </SecondaryButton>
                     </ConfirmsPassword>
 
-                    <ConfirmsPassword :title="__('Confirm Password')" :content="__('For your security, please confirm your password to continue.')" :button="__('Confirm')" @confirmed="disableTwoFactorAuthentication">
+                    <ConfirmsPassword :title="__('Confirm Password')" :content="__('For your security, please confirm your password to continue.')"  @confirmed="disableTwoFactorAuthentication">
                         <DangerButton
                             v-if="! confirming"
                             :class="{ 'opacity-25': disabling }"
