@@ -73,10 +73,10 @@ const logout = () => {
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     {{ __('Dashboard') }}
                                 </NavLink>
-                                <NavLink v-if="isAdminOrSuperAdmin" :href="route('users.index')" :active="route().current('users')">
+                                <NavLink v-if="isAdminOrSuperAdmin" :href="route('users.index')" :active="route().current('users.index')">
                                     {{ __('Users') }}
                                 </NavLink>
-                                <NavLink :href="route('documents.index')" :active="route().current('documents')">
+                                <NavLink :href="route('documents.index')" :active="route().current('documents.index')">
                                     {{ __('Documents') }}
                                 </NavLink>
                             </div>
@@ -194,6 +194,13 @@ const logout = () => {
                                             {{__('API Tokens')}}
                                         </DropdownLink>
 
+                                        <div class="border-t border-gray-200 dark:border-gray-600" />
+                                        <DropdownLink v-if="isAdminOrSuperAdmin" :href="route('users.index')">
+                                            {{__('Users')}}
+                                        </DropdownLink>
+                                        <DropdownLink :href="route('documents.index')">
+                                            {{__('Documents')}}
+                                        </DropdownLink>
                                         <div class="border-t border-gray-200 dark:border-gray-600" />
 
                                         <!-- Authentication -->
