@@ -32,6 +32,8 @@ const submit = () => {
 const handleGeneratedPassword = (password) => {
     form.password = password;
     form.password_confirmation = password;
+
+    displayingPasswordGenerator.value = false;
 };
 
 </script>
