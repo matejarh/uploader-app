@@ -20,7 +20,7 @@ const confirmDocumentDeletion = (document) => {
 
 const deleteDocument = () => {
     if (documentToDelete.value) {
-        form.delete(route('documents.destroy', documentToDelete.value.id), {
+        form.delete(route('documents.destroy', documentToDelete.value.key), {
             onSuccess: () => closeModal(),
             onError: () => closeModal(),
         });
@@ -45,7 +45,7 @@ defineEmits(['update']);
         <td class="px-4 py-3">{{ item.user.name }}</td>
         <td class="px-4 py-3">{{ item.folder }}</td>
         <td class="px-4 py-3">
-            <a :href="route('documents.download', item.id)" class="text-blue-500 hover:underline">{{ item.file_name }}</a>
+            <a :href="route('documents.download', item)" class="text-blue-500 hover:underline">{{ item.file_name }}</a>
         </td>
         <td class="px-4 py-3 flex items-center justify-end overflow-visible">
             <button @click.stop="confirmDocumentDeletion(item)" class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100" type="button">

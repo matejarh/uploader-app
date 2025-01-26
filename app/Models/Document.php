@@ -9,6 +9,7 @@ class Document extends Model
 {
     protected $fillable = [
         'user_id',
+        'key',
         'file_name',
         'file_path',
         'file_mime_type',
@@ -19,6 +20,20 @@ class Document extends Model
         'file_url',
         'human_readable_created_at',
     ];
+
+    public function getRouteKeyName()
+    {
+        return 'key';
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($document) {
+            $document->key = hash('sha256', time() . $document->file_name);
+        });
+    }
 
     /**
      * Get the user that owns the document.
