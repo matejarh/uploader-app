@@ -103,7 +103,7 @@ const handleDragOver = (event) => {
             <p class="text-xs text-gray-500 dark:text-gray-400">{{ selectedFile.size }} {{ __('bytes') }}</p>
           </span>
         </div>
-        <input id="dropzone-file" type="file" class="hidden" @change="handleFileUpload" />
+        <input id="dropzone-file" type="file" class="hidden" @change="handleFileUpload" accept=".pdf,.doc,.docx" />
       </label>
     </div>
 
