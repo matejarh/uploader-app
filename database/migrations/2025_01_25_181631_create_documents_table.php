@@ -18,7 +18,10 @@ return new class extends Migration
             $table->string('file_path');
             $table->string('file_mime_type');
             $table->timestamps();
+
+            $table->index('user_id');
         });
+
     }
 
     /**
