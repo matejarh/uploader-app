@@ -82,11 +82,11 @@ const handleDragOver = (event) => {
   <div class="p-6">
     <!-- <h2 class="text-xl font-bold mb-4">{{ __('Upload Your File') }}</h2> -->
     <div class="mb-4">
-        <InputLabel for="name" :value="__('Select Folder')" />
+        <InputLabel for="name" class="mb-2" :value="__('Select Folder')" />
       <DropdownComponent :options="['inbox', 'outbox']" v-model="form.folder" class="w-full" />
     </div>
 
-    <div class="flex items-center justify-center w-full"
+    <div class="flex items-center justify-center w-full mb-2"
         @drop="handleDrop"
         @dragover="handleDragOver">
         <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">

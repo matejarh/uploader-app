@@ -23,7 +23,7 @@ const handleChange = (event) => {
 </script>
 
 <template>
-  <select :value="selectedOption" @change="handleChange" class="border rounded p-2 dark:bg-gray-700 dark:text-white dark:border-gray-600 bg-white text-black border-gray-300">
+  <select :value="selectedOption" @change="handleChange" class="border rounded-lg p-2 dark:bg-gray-700 dark:text-white dark:border-gray-600 bg-white text-black border-gray-300">
     <option v-for="option in options" :key="option" :value="option">
       {{ option }}
     </option>
