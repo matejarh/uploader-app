@@ -64,7 +64,7 @@ const logout = () => {
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
                                 <Link :href="route('dashboard')">
-                                <ApplicationMark class="block h-9 w-auto" />
+                                    <ApplicationMark class="block h-9 w-auto" />
                                 </Link>
                             </div>
 
@@ -158,10 +158,22 @@ const logout = () => {
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
                                         <button v-if="$page.props.jetstream.managesProfilePhotos"
-                                            class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
-                                            <img class="size-8 rounded-full object-cover"
-                                                :src="$page.props.auth.user.profile_photo_url"
-                                                :alt="$page.props.auth.user.name">
+                                            class="flex items-center space-x-2 text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-none transition">
+                                            <div class="flex items-center px-4">
+                                                <div class="text-right me-2">
+                                                    <div class="font-medium text-base text-gray-800 dark:text-gray-200">
+                                                        {{ $page.props.auth.user.name }}
+                                                    </div>
+                                                    <div class="font-medium text-sm text-gray-500">
+                                                        {{ $page.props.auth.user.email }}
+                                                    </div>
+                                                </div>
+                                                <div v-if="$page.props.jetstream.managesProfilePhotos" class="shrink-0 me-3">
+                                                    <img class="size-8 rounded-full object-cover"
+                                                        :src="$page.props.auth.user.profile_photo_url" :alt="$page.props.auth.user.name">
+                                                </div>
+
+                                            </div>
                                         </button>
 
                                         <span v-else class="inline-flex rounded-md">
