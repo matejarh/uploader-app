@@ -53,8 +53,8 @@ const logout = () => {
         <Banner />
 
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-                <!-- Sidebar -->
-                <!-- <Navbar />
+            <!-- Sidebar -->
+            <!-- <Navbar />
                 <Sidebar /> -->
             <nav class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
                 <!-- Primary Navigation Menu -->
@@ -64,7 +64,7 @@ const logout = () => {
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
                                 <Link :href="route('dashboard')">
-                                    <ApplicationMark class="block h-9 w-auto" />
+                                <ApplicationMark class="block h-9 w-auto" />
                                 </Link>
                             </div>
 
@@ -73,7 +73,8 @@ const logout = () => {
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     {{ __('Dashboard') }}
                                 </NavLink>
-                                <NavLink v-if="isAdminOrSuperAdmin" :href="route('users.index')" :active="route().current('users.index')">
+                                <NavLink v-if="isAdminOrSuperAdmin" :href="route('users.index')"
+                                    :active="route().current('users.index')">
                                     {{ __('Users') }}
                                 </NavLink>
                                 <NavLink :href="route('documents.index')" :active="route().current('documents.index')">
@@ -106,18 +107,18 @@ const logout = () => {
                                         <div class="w-60">
                                             <!-- Team Management -->
                                             <div class="block px-4 py-2 text-xs text-gray-400">
-                                                {{__('Manage Team')}}
+                                                {{ __('Manage Team') }}
                                             </div>
 
                                             <!-- Team Settings -->
                                             <DropdownLink
                                                 :href="route('teams.show', $page.props.auth.user.current_team)">
-                                                {{__('Team Settings')}}
+                                                {{ __('Team Settings') }}
                                             </DropdownLink>
 
                                             <DropdownLink v-if="$page.props.jetstream.canCreateTeams"
                                                 :href="route('teams.create')">
-                                                {{__('Create New Team')}}
+                                                {{ __('Create New Team') }}
                                             </DropdownLink>
 
                                             <!-- Team Switcher -->
@@ -125,7 +126,7 @@ const logout = () => {
                                                 <div class="border-t border-gray-200 dark:border-gray-600" />
 
                                                 <div class="block px-4 py-2 text-xs text-gray-400">
-                                                    {{__('Switch Teams')}}
+                                                    {{ __('Switch Teams') }}
                                                 </div>
 
                                                 <template v-for="team in $page.props.auth.user.all_teams"
@@ -158,22 +159,18 @@ const logout = () => {
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
                                         <button v-if="$page.props.jetstream.managesProfilePhotos"
-                                            class="flex items-center space-x-2 text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-none transition">
-                                            <div class="flex items-center px-4">
-                                                <div class="text-right me-2">
-                                                    <div class="font-medium text-base text-gray-800 dark:text-gray-200">
-                                                        {{ $page.props.auth.user.name }}
-                                                    </div>
-                                                    <div class="font-medium text-sm text-gray-500">
-                                                        {{ $page.props.auth.user.email }}
-                                                    </div>
+                                            class="flex items-center space-x-2 text-sm border-0 border-transparent rounded-full focus:outline-none focus:border-none transition">
+                                            <div class="hidden sm:block text-right me-2">
+                                                <div class="font-medium text-base text-gray-800 dark:text-gray-200">
+                                                    {{ $page.props.auth.user.name }}
                                                 </div>
-                                                <div v-if="$page.props.jetstream.managesProfilePhotos" class="shrink-0 me-3">
-                                                    <img class="size-8 rounded-full object-cover"
-                                                        :src="$page.props.auth.user.profile_photo_url" :alt="$page.props.auth.user.name">
+                                                <div class="font-medium text-sm text-gray-500">
+                                                    {{ $page.props.auth.user.email }}
                                                 </div>
-
                                             </div>
+                                            <img class="size-8 rounded-full object-cover"
+                                                :src="$page.props.auth.user.profile_photo_url"
+                                                :alt="$page.props.auth.user.name">
                                         </button>
 
                                         <span v-else class="inline-flex rounded-md">
@@ -194,33 +191,33 @@ const logout = () => {
                                     <template #content>
                                         <!-- Account Management -->
                                         <div class="block px-4 py-2 text-xs text-gray-400">
-                                            {{__('Manage Account')}}
+                                            {{ __('Manage Account') }}
                                         </div>
 
                                         <DropdownLink :href="route('profile.show')">
-                                            {{__('Profile')}}
+                                            {{ __('Profile') }}
                                         </DropdownLink>
 
                                         <DropdownLink v-if="$page.props.jetstream.hasApiFeatures"
                                             :href="route('api-tokens.index')">
-                                            {{__('API Tokens')}}
+                                            {{ __('API Tokens') }}
                                         </DropdownLink>
 
                                         <div class="border-t border-gray-200 dark:border-gray-600" />
 
                                         <DropdownLink v-if="isAdminOrSuperAdmin" :href="route('users.index')">
-                                            {{__('Users')}}
+                                            {{ __('Users') }}
                                         </DropdownLink>
 
                                         <DropdownLink :href="route('documents.index')">
-                                            {{__('Documents')}}
+                                            {{ __('Documents') }}
                                         </DropdownLink>
                                         <div class="border-t border-gray-200 dark:border-gray-600" />
 
                                         <!-- Authentication -->
                                         <form @submit.prevent="logout">
                                             <DropdownLink as="button">
-                                                {{__('Log Out')}}
+                                                {{ __('Log Out') }}
                                             </DropdownLink>
                                         </form>
                                     </template>
@@ -253,7 +250,7 @@ const logout = () => {
                     class="sm:hidden">
                     <div class="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                            {{__('Dashboard')}}
+                            {{ __('Dashboard') }}
                         </ResponsiveNavLink>
                     </div>
 
@@ -277,29 +274,31 @@ const logout = () => {
 
                         <div class="mt-3 space-y-1">
                             <ResponsiveNavLink :href="route('profile.show')" :active="route().current('profile.show')">
-                                {{__('Profile')}}
+                                {{ __('Profile') }}
                             </ResponsiveNavLink>
 
 
-                            <ResponsiveNavLink :href="route('documents.index')" :active="route().current('documents.index')">
-                                {{__('Documents')}}
+                            <ResponsiveNavLink :href="route('documents.index')"
+                                :active="route().current('documents.index')">
+                                {{ __('Documents') }}
                             </ResponsiveNavLink>
 
-                            <ResponsiveNavLink v-if="isAdminOrSuperAdmin" :href="route('users.index')" :active="route().current('users.index')">
-                                {{__('Users')}}
+                            <ResponsiveNavLink v-if="isAdminOrSuperAdmin" :href="route('users.index')"
+                                :active="route().current('users.index')">
+                                {{ __('Users') }}
                             </ResponsiveNavLink>
 
 
 
                             <ResponsiveNavLink v-if="$page.props.jetstream.hasApiFeatures"
                                 :href="route('api-tokens.index')" :active="route().current('api-tokens.index')">
-                                {{__('API Tokens')}}
+                                {{ __('API Tokens') }}
                             </ResponsiveNavLink>
 
                             <!-- Authentication -->
                             <form method="POST" @submit.prevent="logout">
                                 <ResponsiveNavLink as="button">
-                                    {{__('Log Out')}}
+                                    {{ __('Log Out') }}
                                 </ResponsiveNavLink>
                             </form>
 
@@ -308,18 +307,18 @@ const logout = () => {
                                 <div class="border-t border-gray-200 dark:border-gray-600" />
 
                                 <div class="block px-4 py-2 text-xs text-gray-400">
-                                    {{__('Manage Team')}}
+                                    {{ __('Manage Team') }}
                                 </div>
 
                                 <!-- Team Settings -->
                                 <ResponsiveNavLink :href="route('teams.show', $page.props.auth.user.current_team)"
                                     :active="route().current('teams.show')">
-                                    {{__('Team Settings')}}
+                                    {{ __('Team Settings') }}
                                 </ResponsiveNavLink>
 
                                 <ResponsiveNavLink v-if="$page.props.jetstream.canCreateTeams"
                                     :href="route('teams.create')" :active="route().current('teams.create')">
-                                    {{__('Create New Team')}}
+                                    {{ __('Create New Team') }}
                                 </ResponsiveNavLink>
 
                                 <!-- Team Switcher -->
@@ -327,7 +326,7 @@ const logout = () => {
                                     <div class="border-t border-gray-200 dark:border-gray-600" />
 
                                     <div class="block px-4 py-2 text-xs text-gray-400">
-                                        {{__('Switch Teams')}}
+                                        {{ __('Switch Teams') }}
                                     </div>
 
                                     <template v-for="team in $page.props.auth.user.all_teams" :key="team.id">
