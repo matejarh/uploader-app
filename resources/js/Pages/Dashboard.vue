@@ -58,7 +58,7 @@ const isAdminOrSuperAdmin = computed(() => {
                                 <li v-for="document in latestDocuments" :key="document.id" class="">
                                     <div class="flex items-center space-x-2">
                                         <FolderIcon class="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                                        <a :href="route('documents.download', document)" class="text-blue-500 dark:text-blue-400 text-sm hover:underline font-mono"><span v-if="isAdminOrSuperAdmin">{{ $page.props.auth.user.email }}</span>/{{ document.folder }}/{{ document.file_name }}</a>
+                                        <a :href="route('documents.download', document)" class="text-blue-500 dark:text-blue-400 text-sm hover:underline font-mono"><span v-if="isAdminOrSuperAdmin">{{ document.user.email }}</span>/{{ document.folder }}/{{ document.file_name }}</a>
                                         <span class="text-gray-600 dark:text-gray-400 text-xs font-mono">({{ document.human_readable_created_at }})</span>
                                     </div>
                                 </li>

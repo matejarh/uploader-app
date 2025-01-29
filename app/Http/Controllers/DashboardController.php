@@ -26,7 +26,7 @@ class DashboardController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Document::latest();
+        $query = Document::with('user')->latest();
 
         // Restrict query to the authenticated user's documents if they don't have permission to view all documents
         if (!Auth::user()->can('view all documents')) {
