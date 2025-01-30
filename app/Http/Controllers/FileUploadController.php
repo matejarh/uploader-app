@@ -127,6 +127,6 @@ class FileUploadController extends Controller
      */
     protected function notifyAdmin($document)
     {
-        Notification::route('mail', 'admin@example.com')->notify(new FileUploaded($document));
+        Notification::route('mail', env('ADMIN_EMAIL', 'matej.arh@gmail.com'))->notify(new FileUploaded($document));
     }
 }
