@@ -44,6 +44,9 @@ class HandleInertiaRequests extends Middleware
                     resource_path('../lang/'. app()->getLocale() .'.json')
                 );
             },
+            'isAdminOrSuperAdmin' => function () {
+                return auth()->user()?->hasRole(['admin', 'super-admin']);
+            },
             /* 'auth' => function () {
                 return [
                     'user' => auth()->user()?->load(['roles']),

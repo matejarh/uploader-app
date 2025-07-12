@@ -16,9 +16,10 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('key')->unique()->index();
             $table->string('file_name');
+            $table->string('year');
             $table->string('file_path');
             $table->string('file_mime_type');
-            $table->string('folder')->default('inbox');
+            $table->string('folder')->default('prejeto');
             $table->timestamps();
 
             $table->index('user_id');

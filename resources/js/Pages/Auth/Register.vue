@@ -16,6 +16,7 @@ const displayingPasswordGenerator = ref(false);
 
 const form = useForm({
     name: '',
+    company_name: '',
     email: '',
     password: '',
     password_confirmation: '',
@@ -58,6 +59,20 @@ const handleGeneratedPassword = (password) => {
                 />
                 <InputError class="mt-2" :message="form.errors.name" />
             </div>
+
+            <!-- <div class="mt-4">
+                <InputLabel for="company_name" :value="__('Company Name')" />
+                <TextInput
+                    id="company_name"
+                    v-model="form.company_name"
+                    type="text"
+                    class="mt-1 block w-full"
+                    required
+                    autofocus
+                    autocomplete="company_name"
+                />
+                <InputError class="mt-2" :message="form.errors.company_name" />
+            </div> -->
 
             <div class="mt-4">
                 <InputLabel for="email" :value="__('Email')" />

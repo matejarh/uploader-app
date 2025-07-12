@@ -18,10 +18,10 @@ defineEmits(['create'])
 
 const showUpdateDialog = ref(false)
 
-const updatingDocument = ref({})
+const updatingCompany = ref({})
 
-const handleUpdate = (document) => {
-    updatingDocument.value = document
+const handleUpdate = (company) => {
+    updatingCompany.value = company
     showUpdateDialog.value = true
 }
 </script>
@@ -31,19 +31,19 @@ const handleUpdate = (document) => {
         <div class="mx-auto max-w-screen-2xl ">
 
             <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
-                <TableHeader :filters="filters" @create="$emit('create')"  />
+                <TableHeader :filters="filters" @create="$emit('create')" v-if="loadUser" />
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 font-bold">
                             <tr>
-                                <th scope="col" class="px-4 py-3">Datum</th>
-                                <th v-if="$page.props.isAdminOrSuperAdmin" scope="col" class="px-4 py-3">Stranka</th>
-                                <th scope="col" class="px-4 py-3">Podjetje</th>
-                                <th scope="col" class="px-4 py-3">Leto</th>
+                                <th v-if="loadUser" scope="col" class="px-4 py-3">Stranka</th>
+                                <th v-else scope="col" class="px-4 py-3">Podjetje</th>
+                                <th scope="col" class="px-4 py-3">Naslov podjetja</th>
+                                <!-- <th scope="col" class="px-4 py-3">Leto</th>
                                 <th scope="col" class="px-4 py-3">Mapa</th>
-                                <th scope="col" class="px-4 py-3">Datoteka</th>
-                                <th scope="col" class="px-4 py-3" v-if="$page.props.isAdminOrSuperAdmin">Obdelan</th>
+                                <th scope="col" class="px-4 py-3">Datoteka</th> -->
+                                <!-- <th scope="col" class="px-4 py-3" v-if="$page.props.isAdminOrSuperAdmin">Obdelan</th> -->
 
                                 <th scope="col" class="px-4 py-3">
                                     <span class="sr-only">Operacije</span>
@@ -59,7 +59,7 @@ const handleUpdate = (document) => {
                 <div v-html="links"></div>
             </div>
         </div>
-        <!-- <UpdateDialog :show="showUpdateDialog" :document="updatingDocument"  @close="showUpdateDialog = false" /> -->
+        <UpdateDialog :show="showUpdateDialog" :company="updatingCompany"  @close="showUpdateDialog = false" />
     </section>
 </template>
 

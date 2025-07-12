@@ -23,7 +23,7 @@ const canAddUser = computed(() => {
     const user = pageProps.auth.user;
     if (user && user.roles) {
         const roles = user.roles.map(role => role.name);
-        return roles.includes('Super-Admin') || user.permissions.includes('add user');
+        return roles.includes('super-admin') || user.permissions.includes('add user');
     }
     return false;
 });

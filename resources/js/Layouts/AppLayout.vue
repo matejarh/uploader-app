@@ -16,14 +16,7 @@ const { props } = usePage();
 
 const showingNavigationDropdown = ref(false);
 
-const isAdminOrSuperAdmin = computed(() => {
-    const user = props.auth.user;
-    if (user && user.roles) {
-        const roles = user.roles.map(role => role.name);
-        return roles.includes('Super-Admin') || roles.includes('admin');
-    }
-    return false;
-});
+const isAdminOrSuperAdmin = computed(() => props.isAdminOrSuperAdmin);
 
 /* const store = useTranslationsStore(); */
 
@@ -76,6 +69,9 @@ const logout = () => {
                                 <NavLink v-if="isAdminOrSuperAdmin" :href="route('users.index')"
                                     :active="route().current('users.index')">
                                     {{ __('Users') }}
+                                </NavLink>
+                                <NavLink :href="route('companies.index')" :active="route().current('companies.index')">
+                                    {{ __('Companies') }}
                                 </NavLink>
                                 <NavLink :href="route('documents.index')" :active="route().current('documents.index')">
                                     {{ __('Documents') }}
@@ -209,6 +205,9 @@ const logout = () => {
                                             {{ __('Users') }}
                                         </DropdownLink>
 
+                                        <DropdownLink :href="route('companies.index')">
+                                            {{ __('Companies') }}
+                                        </DropdownLink>
                                         <DropdownLink :href="route('documents.index')">
                                             {{ __('Documents') }}
                                         </DropdownLink>
@@ -277,6 +276,11 @@ const logout = () => {
                                 {{ __('Profile') }}
                             </ResponsiveNavLink>
 
+
+                            <ResponsiveNavLink :href="route('companies.index')"
+                                :active="route().current('companies.index')">
+                                {{ __('Companies') }}
+                            </ResponsiveNavLink>
 
                             <ResponsiveNavLink :href="route('documents.index')"
                                 :active="route().current('documents.index')">

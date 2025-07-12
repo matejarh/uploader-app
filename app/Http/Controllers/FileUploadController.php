@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -20,18 +21,18 @@ class FileUploadController extends Controller
     public function upload(Request $request)
     {
         $this->validateRequest($request);
-        $userFolder = $this->getUserFolder();
-        $file = $request->file('file');
-        $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $file->getClientOriginalName());
-        // $fileName = $file->getClientOriginalName();
-        $filePath = "$userFolder/$fileName";
 
-        if ($this->fileExists($file, $userFolder)) {
+        $userFolder = $this->getUserFolder($request->company_id);
+        $yearFolder = $this->getYearFolder();
+        $file = $request->file('file');
+        $fileName = $file->getClientOriginalName();
+
+        if ($this->fileExists($file, $userFolder, $yearFolder)) {
             return Redirect::back()->withErrors(['file' => __('A file with the same content already exists in storage.')]);
         }
 
-        $storedFilePath = $this->storeFile($file, $userFolder, $fileName, $request->folder);
-        $document = $this->saveFileRecord($file, $storedFilePath, $request->folder);
+        $storedFilePath = $this->storeFile($file, $userFolder, $yearFolder, $fileName, $request->folder);
+        $document = $this->saveFileRecord($file, $storedFilePath, $request->folder, $request->company_id);
 
         $this->notifyAdmin($document);
 
@@ -53,7 +54,21 @@ class FileUploadController extends Controller
     protected function validateRequest(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:pdf,doc,docx|max:2048',
+            'file' => [
+                'required',
+                'mimes:pdf,doc,docx,xls,xlsx,csv,txt,xml',
+                'max:2048',
+                function ($attribute, $value, $fail) use ($request) {
+                    $userFolder = $this->getUserFolder($request->company_id);
+                    $yearFolder = $this->getYearFolder();
+                    $fileName = $request->file('file')->getClientOriginalName();
+                    if (Storage::exists("$userFolder/$yearFolder/$fileName")) {
+                        $fail(__('A file with the same name already exists in your folder.'));
+                    }
+                },
+            ],
+            'folder' => ['required', 'in:prejeti,izdani,trr,kadrovske zadeve,pogodbe,ostalo'],
+            'company_id' => ['required', 'exists:companies,id'],
         ]);
     }
 
@@ -62,22 +77,35 @@ class FileUploadController extends Controller
      *
      * @return string
      */
-    protected function getUserFolder()
+    protected function getUserFolder($companyId)
     {
-        return 'dokumenti/' . auth()->user()->email;
+        $company_slug = Company::find($companyId)->company_slug;
+        return 'dokumenti/' . $company_slug;
+        // return 'dokumenti/' . auth()->user()->company_slug;
     }
 
     /**
-     * Check if a file with the same hash already exists in the user's folder.
+     * Get the current year folder path.
+     *
+     * @return string
+     */
+    protected function getYearFolder()
+    {
+        return "Leto " . date('Y');
+    }
+
+    /**
+     * Check if a file with the same hash already exists in the user's folder or any subfolder.
      *
      * @param \Illuminate\Http\UploadedFile $file
      * @param string $userFolder
+     * @param string $yearFolder
      * @return bool
      */
-    protected function fileExists($file, $userFolder)
+    protected function fileExists($file, $userFolder, $yearFolder)
     {
         $fileHash = hash_file('sha256', $file->getRealPath());
-        $existingFiles = Storage::files($userFolder);
+        $existingFiles = Storage::allFiles($userFolder);
 
         foreach ($existingFiles as $existingFile) {
             if (hash_file('sha256', Storage::path($existingFile)) === $fileHash) {
@@ -93,12 +121,14 @@ class FileUploadController extends Controller
      *
      * @param \Illuminate\Http\UploadedFile $file
      * @param string $userFolder
+     * @param string $yearFolder
      * @param string $fileName
+     * @param string $folder
      * @return string
      */
-    protected function storeFile($file, $userFolder, $fileName, $folder = 'inbox')
+    protected function storeFile($file, $userFolder, $yearFolder, $fileName, $folder)
     {
-        return $file->storeAs("$userFolder/$folder", $fileName, 'local');
+        return $file->storeAs("$userFolder/$yearFolder/$folder", $fileName, 'local');
     }
 
     /**
@@ -106,13 +136,24 @@ class FileUploadController extends Controller
      *
      * @param \Illuminate\Http\UploadedFile $file
      * @param string $storedFilePath
+     * @param string $folder
      * @return \App\Models\Document
      */
-    protected function saveFileRecord($file, $storedFilePath, $folder = 'inbox')
+    protected function saveFileRecord($file, $storedFilePath, $folder, $companyId)
     {
+        $company = Company::find($companyId);
+
+        if (auth()->user()->hasRole(['admin', 'super-admin'])) {
+            $user_id = $company->user_id;
+        } else {
+            $user_id = auth()->id();
+        }
+
         return Document::create([
-            'user_id' => auth()->id(),
+            'user_id' => $user_id,
+            'company_id' => $companyId,
             'file_name' => $file->getClientOriginalName(),
+            'year' => $this->getYearFolder(),
             'file_path' => $storedFilePath,
             'file_mime_type' => $file->getMimeType(),
             'folder' => $folder,
@@ -127,6 +168,6 @@ class FileUploadController extends Controller
      */
     protected function notifyAdmin($document)
     {
-        Notification::route('mail', env('ADMIN_EMAIL', 'matej.arh@gmail.com'))->notify(new FileUploaded($document));
+        Notification::route('mail', config('app.admin_email'))->notify(new FileUploaded($document));
     }
 }

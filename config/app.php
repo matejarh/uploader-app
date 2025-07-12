@@ -2,6 +2,15 @@
 
 return [
 
+    /**
+     * Admin Email
+     *
+     * Email that admin notifications are sent to.
+     */
+
+
+     'admin_email' => env('ADMIN_EMAIL', 'matej.arh@gmail.com'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name

@@ -12,6 +12,10 @@ const props = defineProps({
     documents: Object,
     links: String,
     filters: Object,
+    loadUser: {
+        type: Boolean,
+        default: true,
+    },
 })
 
 const showingUploader = ref(false);
@@ -31,7 +35,7 @@ const handleFileUploaded = (status) => {
         <template #header>
         <div class="flex items-center justify-between">
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Documents') }}
+                {{ __('Documents') }} <span  v-show="filters.najdi">za <span class="italic">{{ filters.najdi }}</span></span>
             </h2>
             <Tooltip :text="__('Upload Document')">
                 <SecondaryButton @click="showingUploader = true">
@@ -47,7 +51,7 @@ const handleFileUploaded = (status) => {
         <div>
             <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
                 <div class="text-gray-800 dark:text-gray-200 ">
-                    <TableList :list="documents" :links="links" :filters="filters" @create="showingUploader = true" />
+                    <TableList :list="documents" :links="links" :load-user="loadUser" :filters="filters" @create="showingUploader = true" />
                 </div>
             </div>
         </div>

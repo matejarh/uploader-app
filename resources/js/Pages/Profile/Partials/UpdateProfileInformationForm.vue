@@ -16,17 +16,24 @@ const props = defineProps({
 const form = useForm({
     _method: 'PUT',
     name: props.user.name,
+    company_name: props.user.company_name,
     email: props.user.email,
     photo: null,
+    logo: null,
 });
 
 const verificationLinkSent = ref(null);
 const photoPreview = ref(null);
 const photoInput = ref(null);
+const logoPreview = ref(null);
+const logoInput = ref(null);
 
 const updateProfileInformation = () => {
     if (photoInput.value) {
         form.photo = photoInput.value.files[0];
+    }
+    if (logoInput.value) {
+        form.logo = logoInput.value.files[0];
     }
 
     form.post(route('user-profile-information.update'), {
@@ -44,6 +51,10 @@ const selectNewPhoto = () => {
     photoInput.value.click();
 };
 
+const selectNewLogo = () => {
+    logoInput.value.click();
+};
+
 const updatePhotoPreview = () => {
     const photo = photoInput.value.files[0];
 
@@ -58,6 +69,20 @@ const updatePhotoPreview = () => {
     reader.readAsDataURL(photo);
 };
 
+const updateLogoPreview = () => {
+    const logo = logoInput.value.files[0];
+
+    if (! logo) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+        logoPreview.value = e.target.result;
+    };
+
+    reader.readAsDataURL(logo);
+};
+
 const deletePhoto = () => {
     router.delete(route('current-user-photo.destroy'), {
         preserveScroll: true,
@@ -68,9 +93,25 @@ const deletePhoto = () => {
     });
 };
 
+const deleteLogo = () => {
+    router.delete(route('current-user-logo.destroy'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            logoPreview.value = null;
+            clearLogoFileInput();
+        },
+    });
+};
+
 const clearPhotoFileInput = () => {
     if (photoInput.value?.value) {
         photoInput.value.value = null;
+    }
+};
+
+const clearLogoFileInput = () => {
+    if (logoInput.value?.value) {
+        logoInput.value.value = null;
     }
 };
 </script>
@@ -140,6 +181,20 @@ const clearPhotoFileInput = () => {
                     autocomplete="name"
                 />
                 <InputError :message="form.errors.name" class="mt-2" />
+            </div>
+
+            <!-- Company Name -->
+            <div class="col-span-6 sm:col-span-4">
+                <InputLabel for="company_name" :value="__('Company Name')" />
+                <TextInput
+                    id="company_name"
+                    v-model="form.company_name"
+                    type="text"
+                    class="mt-1 block w-full"
+                    required
+                    autocomplete="company_name"
+                />
+                <InputError :message="form.errors.company_name" class="mt-2" />
             </div>
 
             <!-- Email -->

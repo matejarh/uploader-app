@@ -33,7 +33,7 @@ class DashboardController extends Controller
             $query->where('user_id', Auth::id());
         }
 
-        $latestDocuments = $query->take(5)->get();
+        $latestDocuments = $query->take(20)->get();
 
         return Inertia::render('Dashboard', [
             'latestDocuments' => $latestDocuments,

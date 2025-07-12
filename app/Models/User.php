@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-// use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -15,14 +14,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens;
-    use HasRoles;
-
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory;
-    use HasProfilePhoto;
-    use Notifiable;
-    use TwoFactorAuthenticatable;
+    use HasApiTokens, HasRoles, HasFactory, HasProfilePhoto, Notifiable, TwoFactorAuthenticatable;
 
     protected $guard_name = 'web';
 
@@ -33,6 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $fillable = [
         'name',
+        'company_name',
         'email',
         'password',
     ];
@@ -57,6 +50,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $appends = [
         'profile_photo_url',
         'human_readable_created_at',
+        'company_slug',
+        'companies_count',
     ];
 
     protected $with = ['roles'];
@@ -75,6 +70,11 @@ class User extends Authenticatable implements MustVerifyEmail
             foreach ($user->documents as $document) {
                 Storage::delete($document->file_path);
                 $document->delete();
+            }
+
+            // Delete all companies
+            foreach ($user->companies as $company) {
+                $company->delete();
             }
         });
     }
@@ -107,19 +107,65 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->created_at->diffForHumans();
     }
 
+    /**
+     * Get users companies count
+     */
+    public function getCompaniesCountAttribute()
+    {
+        return $this->companies->count();
+    }
+
+    /**
+     * Get the user's documents.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function documents()
     {
         return $this->hasMany(Document::class);
     }
 
+    /**
+     * Get the user's companies.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function companies()
+    {
+        return $this->hasMany(Company::class);
+    }
+
+    /**
+     * Get the company slug attribute.
+     *
+     * @return string
+     */
+    public function getCompanySlugAttribute()
+    {
+        return str(explode(',', $this->company_name)[0])->slug('-');
+    }
+
+    /**
+     * Scope a query to filter users based on search phrases.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param array $filters
+     * @return void
+     */
     public function scopeFilter($query, array $filters): void
     {
         $query->when($filters['najdi'] ?? null, function ($query, $najdi) {
-            $najdi = str($najdi)->squish();
-            $query->Where(function ($query) use ($najdi) {
-                $query->where('name', 'like', '%' . $najdi . '%')
-                ->orWhere('email', 'like', '%' . $najdi . '%');
-            });
+            $phrases = explode('+', $najdi);
+            foreach ($phrases as $phrase) {
+                $phrase = str($phrase)->squish();
+                $query->where(function ($query) use ($phrase) {
+                    $query->where('name', 'like', '%' . $phrase . '%')
+                          ->orWhere('email', 'like', '%' . $phrase . '%');
+                          //->orWhere('company_name', 'like', '%' . $phrase . '%');
+                })->orWhereHas('companies', function ($query) use ($phrase) {
+                    $query->where('company_name', 'like', '%' . $phrase . '%');
+                });
+            }
         });
     }
 }

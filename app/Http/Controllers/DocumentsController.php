@@ -29,7 +29,7 @@ class DocumentsController extends Controller
     public function index(Request $request)
     {
         // Create a query to filter and sort documents
-        $query = Document::with('user')->filter($request->only(['najdi']))->latest();
+        $query = Document::with('user')->with('company')->filter($request->only(['najdi']))->latest();
 
         // Restrict query to the authenticated user's documents if they don't have permission to view all documents
         if (!Auth::user()->can('view all documents')) {
@@ -60,7 +60,7 @@ class DocumentsController extends Controller
     public function show(Document $document)
     {
         // Check if the authenticated user can view the document
-        if (Auth::user()->can('view all documents') || Auth::user()->id === $document->user_id) {
+        if (Auth::user()->can('view all documents') || (Auth::user()->id === $document->user_id && Auth::user()->can('view own documents'))) {
             return Inertia::render('Documents/Show', [
                 'document' => $document,
             ]);
@@ -79,7 +79,7 @@ class DocumentsController extends Controller
     public function download(Document $document)
     {
         // Check if the authenticated user can download the document
-        if (Auth::user()->can('view all documents') || Auth::user()->id === $document->user_id) {
+        if (Auth::user()->can('view all documents') || (Auth::user()->id === $document->user_id && Auth::user()->can('view own documents'))) {
             return Storage::download($document->file_path, $document->file_name);
         }
 
@@ -96,7 +96,7 @@ class DocumentsController extends Controller
     public function destroy(Document $document)
     {
         // Check if the authenticated user can delete the document
-        if (Auth::user()->can('delete any document') || Auth::user()->id === $document->user_id) {
+        if (Auth::user()->can('delete any document') || (Auth::user()->id === $document->user_id && Auth::user()->can('delete own documents'))) {
             // Delete the file from storage
             Storage::delete($document->file_path);
             // Delete the document record from the database
@@ -107,6 +107,34 @@ class DocumentsController extends Controller
 
             // Redirect to the documents index with a success message
             return redirect()->route('documents.index')->with('success', 'Document deleted successfully.');
+        }
+
+        // Abort with a 403 status if the user is not authorized
+        abort(403, __('Unauthorized action.'));
+    }
+
+    /**
+     * Update the specified document in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Document $document
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(Request $request, Document $document)
+    {
+        // Check if the authenticated user can update the document
+        if (Auth::user()->can('update any document') || (Auth::user()->id === $document->user_id && Auth::user()->can('update own documents'))) {
+            // Update the document record with the request data
+            /* $document->update($request->all()); */
+            $document->processed = !$document->processed;
+            $document->save();
+
+            session()->flash('flash.banner', 'Dokument je bil uspešno posodobljen!');
+            session()->flash('flash.bannerStyle', 'success');
+
+            // Redirect to the document show page with a success message
+            // return redirect()->route('documents.index', $document)->with('success', 'Document updated successfully.');
+            return back()->with('success', 'Document updated successfully.');
         }
 
         // Abort with a 403 status if the user is not authorized

@@ -9,8 +9,10 @@ class Document extends Model
 {
     protected $fillable = [
         'user_id',
+        'company_id',
         'key',
         'file_name',
+        'year',
         'file_path',
         'file_mime_type',
         'folder',
@@ -19,7 +21,14 @@ class Document extends Model
     protected $appends = [
         'file_url',
         'human_readable_created_at',
+        'formated_date',
     ];
+
+    protected $casts = [
+        'processed' => 'boolean',
+    ];
+
+    protected $with = ['company'];
 
     public function getRouteKeyName()
     {
@@ -33,6 +42,10 @@ class Document extends Model
         static::creating(function ($document) {
             $document->key = hash('sha256', time() . $document->file_name);
         });
+
+        static::deleting(function ($document) {
+            Storage::delete($document->file_path);
+        });
     }
 
     /**
@@ -41,6 +54,14 @@ class Document extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the company that owns the document.
+     */
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 
     /**
@@ -63,8 +84,13 @@ class Document extends Model
         return $this->created_at->diffForHumans();
     }
 
+    public function getFormatedDateAttribute()
+    {
+        return $this->created_at->format('d.m.Y');
+    }
+
     /**
-     * Scope a query to filter documents based on user email, name, or file name.
+     * Scope a query to filter documents based on user email, name, file name, company name or year.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param array $filters
@@ -73,13 +99,23 @@ class Document extends Model
     public function scopeFilter($query, array $filters): void
     {
         $query->when($filters['najdi'] ?? null, function ($query, $najdi) {
-            $najdi = str($najdi)->squish();
-            $query->whereHas('user', function ($query) use ($najdi) {
-                $query->where('email', 'like', '%' . $najdi . '%')
-                      ->orWhere('name', 'like', '%' . $najdi . '%');
-            })->orWhere(function ($query) use ($najdi) {
-                $query->where('file_name', 'like', '%' . $najdi . '%')->orWhere('folder', 'like', '%' . $najdi . '%');
-            });
+            $phrases = explode('+', $najdi);
+            foreach ($phrases as $phrase) {
+                $phrase = str($phrase)->squish();
+                $query->where(function ($query) use ($phrase) {
+                    $query->whereHas('user', function ($query) use ($phrase) {
+                        $query->where('email', 'like', '%' . $phrase . '%')
+                              ->orWhere('name', 'like', '%' . $phrase . '%')
+                              ->orWhere('company_name', 'like', '%' . $phrase . '%');
+                    })->orWhereHas('company', function ($query) use ($phrase) {
+                        $query->where('company_name', 'like', '%' . $phrase . '%');
+                    })->orWhere(function ($query) use ($phrase) {
+                        $query->where('file_name', 'like', '%' . $phrase . '%')
+                              ->orWhere('year', 'like', '%' . $phrase . '%')
+                              ->orWhere('folder', 'like', '%' . $phrase . '%');
+                    });
+                });
+            }
         });
     }
 }

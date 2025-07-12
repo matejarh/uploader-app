@@ -4,7 +4,7 @@ window.axios = axios;
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.axios.defaults.headers.common['Content-Security-Policy'] = "default-src 'self'; frame-ancestors 'none'";
 
-import Logo from '../images/logo.svg'
+import Logo from '../images/logo_black_gold.svg'
 
 const setFavicon = () => {
     let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
