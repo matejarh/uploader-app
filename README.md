@@ -1,4 +1,4 @@
-<p align="center"><a href="https://example.com" target="_blank"><img src="https://example.com/logo.svg" width="400" alt="Uploader App Logo"></a></p>
+<p align="center"><a href="https://example.com" target="_blank"><img src="resources/images/logo.svg" width="400" alt="Uploader App Logo"></a></p>
 
 <p align="center">
 <a href="https://github.com/example/uploader-app/actions"><img src="https://github.com/example/uploader-app/workflows/tests/badge.svg" alt="Build Status"></a>
