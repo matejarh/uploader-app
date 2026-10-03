@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img alt="CI Status" src="https://img.shields.io/github/actions/workflow/status/yourusername/uploader-app/tests.yml?branch=main&label=CI" />
+  <img alt="CI Status" src="https://img.shields.io/github/actions/workflow/status/matejarh/uploader-app/tests.yml?branch=main&label=CI" />
   <img alt="PHP Version" src="https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white" />
   <img alt="Laravel" src="https://img.shields.io/badge/Laravel-11.x-FF2D20?logo=laravel&logoColor=white" />
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green" />
