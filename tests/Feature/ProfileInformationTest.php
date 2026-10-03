@@ -16,10 +16,31 @@ class ProfileInformationTest extends TestCase
 
         $this->put('/user/profile-information', [
             'name' => 'Test Name',
+            'company_name' => 'Example Company',
             'email' => 'test@example.com',
         ]);
 
         $this->assertEquals('Test Name', $user->fresh()->name);
         $this->assertEquals('test@example.com', $user->fresh()->email);
+    }
+
+    public function test_email_change_does_not_crash_and_resets_verification(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'old@example.com',
+            'company_name' => 'Example Company',
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->put('/user/profile-information', [
+            'name' => $user->name,
+            'company_name' => 'Example Company',
+            'email' => 'new@example.com',
+        ]);
+
+        $response->assertSessionMissing('errors');
+        $this->assertEquals('new@example.com', $user->fresh()->email);
+        $this->assertNull($user->fresh()->email_verified_at);
     }
 }

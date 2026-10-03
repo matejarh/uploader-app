@@ -16,6 +16,8 @@ class Document extends Model
         'file_path',
         'file_mime_type',
         'folder',
+        'processed',
+        'archived',
     ];
 
     protected $appends = [
@@ -26,6 +28,7 @@ class Document extends Model
 
     protected $casts = [
         'processed' => 'boolean',
+        'archived' => 'boolean',
     ];
 
     protected $with = ['company'];

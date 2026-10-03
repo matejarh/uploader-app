@@ -28,8 +28,13 @@ class DocumentsController extends Controller
      */
     public function index(Request $request)
     {
+        $showArchived = $request->boolean('archived');
+
         // Create a query to filter and sort documents
-        $query = Document::with('user')->with('company')->filter($request->only(['najdi']))->latest();
+        $query = Document::with('user')->with('company')
+            ->when($showArchived, fn ($query) => $query->where('archived', true), fn ($query) => $query->where('archived', false))
+            ->filter($request->only(['najdi']))
+            ->latest();
 
         // Restrict query to the authenticated user's documents if they don't have permission to view all documents
         if (!Auth::user()->can('view all documents')) {
@@ -124,20 +129,27 @@ class DocumentsController extends Controller
     {
         // Check if the authenticated user can update the document
         if (Auth::user()->can('update any document') || (Auth::user()->id === $document->user_id && Auth::user()->can('update own documents'))) {
-            // Update the document record with the request data
-            /* $document->update($request->all()); */
+            if ($request->has('archived')) {
+                $document->archived = $request->boolean('archived');
+                $document->save();
+
+                session()->flash('flash.banner', $document->archived
+                    ? 'Dokument je bil uspešno arhiviran.'
+                    : 'Dokument je bil vrnjen med aktivne dokumente.');
+                session()->flash('flash.bannerStyle', 'success');
+
+                return back()->with('success', 'Document updated successfully.');
+            }
+
             $document->processed = !$document->processed;
             $document->save();
 
             session()->flash('flash.banner', 'Dokument je bil uspešno posodobljen!');
             session()->flash('flash.bannerStyle', 'success');
 
-            // Redirect to the document show page with a success message
-            // return redirect()->route('documents.index', $document)->with('success', 'Document updated successfully.');
             return back()->with('success', 'Document updated successfully.');
         }
 
-        // Abort with a 403 status if the user is not authorized
         abort(403, __('Unauthorized action.'));
     }
 }

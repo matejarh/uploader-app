@@ -20,11 +20,12 @@ return new class extends Migration
         });
 
 
-        // Populate the company_id column with the user's first company_id
-        DB::table('documents')->join('users', 'documents.user_id', '=', 'users.id')
-            ->leftJoin('companies', 'users.id', '=', 'companies.user_id')
-            ->whereNotNull('companies.id')
-            ->update(['documents.company_id' => DB::raw('companies.id')]);
+        // Populate the company_id column with the user's first company_id.
+        // SQLite does not allow updating a table using a joined table reference in the SET clause,
+        // so we use a correlated subquery instead.
+        DB::table('documents')->whereNotNull('user_id')->update([
+            'company_id' => DB::raw('(SELECT companies.id FROM companies WHERE companies.user_id = documents.user_id LIMIT 1)'),
+        ]);
 
         // Add the foreign key constraint
         Schema::table('documents', function (Blueprint $table) {

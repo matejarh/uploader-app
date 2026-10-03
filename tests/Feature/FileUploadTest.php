@@ -82,8 +82,38 @@ class FileUploadTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHasErrors(['file' => __('A file with the same content already exists in storage.')]);
 
-        Storage::disk('local')->assertExists('dokumenti/' . $user->email . '/' . $file->hashName());
+        Storage::disk('local')->assertExists('dokumenti/' . $user->email . '/inbox/' . $file->hashName());
         $this->assertCount(1, Document::all());
+    }
+
+    /**
+     * Test that a file upload fails with invalid file type.
+     *
+     * @return void
+     */
+    public function test_txt_and_xml_files_can_be_uploaded(): void
+    {
+        Storage::fake('local');
+
+        $user = User::factory()->create();
+        $user->assignRole('client');
+        $this->actingAs($user);
+
+        foreach ([
+            ['document.txt', 'text/plain', 'Plain text file content for upload validation.'],
+            ['document.xml', 'application/xml', '<root><message>XML upload validation</message></root>'],
+        ] as [$filename, $mimeType, $content]) {
+            $file = UploadedFile::fake()->createWithContent($filename, $content, $mimeType);
+
+            $response = $this->post(route('upload'), [
+                'file' => $file,
+                'folder' => 'inbox',
+            ]);
+
+            $response->assertRedirect();
+            $response->assertSessionHas('flash.banner', __('Document uploaded successfully!'));
+            Storage::disk('local')->assertExists('dokumenti/' . $user->email . '/inbox/' . $file->hashName());
+        }
     }
 
     /**
@@ -99,7 +129,7 @@ class FileUploadTest extends TestCase
         $user->assignRole('client');
         $this->actingAs($user);
 
-        $file = UploadedFile::fake()->create('document.txt', 100, 'text/plain');
+        $file = UploadedFile::fake()->create('document.jpg', 100, 'image/jpeg');
 
         $response = $this->post(route('upload'), [
             'file' => $file,
@@ -109,7 +139,7 @@ class FileUploadTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHasErrors(['file']);
 
-        Storage::disk('local')->assertMissing('dokumenti/' . $user->email . '/' . $file->hashName());
+        Storage::disk('local')->assertMissing('dokumenti/' . $user->email . '/inbox/' . $file->hashName());
     }
 
     /**
@@ -135,6 +165,6 @@ class FileUploadTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHasErrors(['file']);
 
-        Storage::disk('local')->assertMissing('dokumenti/' . $user->email . '/' . $file->hashName());
+        Storage::disk('local')->assertMissing('dokumenti/' . $user->email . '/inbox/' . $file->hashName());
     }
 }

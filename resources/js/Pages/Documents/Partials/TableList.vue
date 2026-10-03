@@ -44,6 +44,7 @@ const handleUpdate = (document) => {
                                 <th scope="col" class="px-4 py-3">Mapa</th>
                                 <th scope="col" class="px-4 py-3">Datoteka</th>
                                 <th scope="col" class="px-4 py-3" v-if="$page.props.isAdminOrSuperAdmin">Obdelan</th>
+                                <th scope="col" class="px-4 py-3" v-if="$page.props.isAdminOrSuperAdmin">Arhiviran</th>
 
                                 <th scope="col" class="px-4 py-3">
                                     <span class="sr-only">Operacije</span>

@@ -47,6 +47,15 @@ const toggleProcessed = () => {
     });
 };
 
+const toggleArchived = () => {
+    form.put(route('documents.update', props.item.key), {
+        archived: !props.item.archived,
+        onSuccess: () => {
+            // item.archived = !item.archived;
+        },
+    });
+};
+
 const searchDocuments = (phrase, event) => {
     if (event.ctrlKey) {
         // Add the phrase to the searchPhrases array if Ctrl is held
@@ -86,6 +95,9 @@ defineEmits(['update']);
         </td>
         <td class="px-4 py-3" v-if="$page.props.isAdminOrSuperAdmin">
             <Checkbox :checked="item.processed" @click="toggleProcessed" />
+        </td>
+        <td class="px-4 py-3" v-if="$page.props.isAdminOrSuperAdmin">
+            <Checkbox :checked="item.archived" @click="toggleArchived" />
         </td>
         <td class="px-4 py-3 flex items-center justify-end overflow-visible">
             <button @click.stop="confirmDocumentDeletion(item)" class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100" type="button">

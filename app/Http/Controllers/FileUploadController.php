@@ -22,6 +22,7 @@ class FileUploadController extends Controller
     {
         $this->validateRequest($request);
 
+        $folder = $request->folder;
         $userFolder = $this->getUserFolder($request->company_id);
         $yearFolder = $this->getYearFolder();
         $file = $request->file('file');
@@ -31,8 +32,8 @@ class FileUploadController extends Controller
             return Redirect::back()->withErrors(['file' => __('A file with the same content already exists in storage.')]);
         }
 
-        $storedFilePath = $this->storeFile($file, $userFolder, $yearFolder, $fileName, $request->folder);
-        $document = $this->saveFileRecord($file, $storedFilePath, $request->folder, $request->company_id);
+        $storedFilePath = $this->storeFile($file, $userFolder, $yearFolder, $fileName, $folder);
+        $document = $this->saveFileRecord($file, $storedFilePath, $folder, $request->company_id);
 
         $this->notifyAdmin($document);
 
@@ -67,8 +68,8 @@ class FileUploadController extends Controller
                     }
                 },
             ],
-            'folder' => ['required', 'in:prejeti,izdani,trr,kadrovske zadeve,pogodbe,ostalo'],
-            'company_id' => ['required', 'exists:companies,id'],
+            'folder' => ['required', 'in:prejeti,izdani,trr,kadrovske zadeve,pogodbe,ostalo,inbox'],
+            'company_id' => ['nullable', 'exists:companies,id'],
         ]);
     }
 
@@ -77,11 +78,21 @@ class FileUploadController extends Controller
      *
      * @return string
      */
-    protected function getUserFolder($companyId)
+    protected function getUserFolder($companyId = null)
     {
-        $company_slug = Company::find($companyId)->company_slug;
-        return 'dokumenti/' . $company_slug;
-        // return 'dokumenti/' . auth()->user()->company_slug;
+        if ($companyId) {
+            $company = Company::find($companyId);
+
+            if ($company) {
+                return 'dokumenti/' . $company->company_slug;
+            }
+        }
+
+        if (auth()->user()?->companies()->exists()) {
+            return 'dokumenti/' . auth()->user()->companies()->first()->company_slug;
+        }
+
+        return 'dokumenti/' . auth()->user()->email;
     }
 
     /**
@@ -128,6 +139,10 @@ class FileUploadController extends Controller
      */
     protected function storeFile($file, $userFolder, $yearFolder, $fileName, $folder)
     {
+        if (! auth()->user()?->companies()->exists() && ! request()->boolean('company_id')) {
+            return $file->storeAs("$userFolder/$folder", $file->hashName(), 'local');
+        }
+
         return $file->storeAs("$userFolder/$yearFolder/$folder", $fileName, 'local');
     }
 
@@ -139,11 +154,11 @@ class FileUploadController extends Controller
      * @param string $folder
      * @return \App\Models\Document
      */
-    protected function saveFileRecord($file, $storedFilePath, $folder, $companyId)
+    protected function saveFileRecord($file, $storedFilePath, $folder, $companyId = null)
     {
-        $company = Company::find($companyId);
+        $company = $companyId ? Company::find($companyId) : auth()->user()?->companies()->first();
 
-        if (auth()->user()->hasRole(['admin', 'super-admin'])) {
+        if (auth()->user()->hasRole(['admin', 'super-admin']) && $company) {
             $user_id = $company->user_id;
         } else {
             $user_id = auth()->id();
@@ -151,7 +166,7 @@ class FileUploadController extends Controller
 
         return Document::create([
             'user_id' => $user_id,
-            'company_id' => $companyId,
+            'company_id' => $company?->id ?? $companyId,
             'file_name' => $file->getClientOriginalName(),
             'year' => $this->getYearFolder(),
             'file_path' => $storedFilePath,
@@ -159,6 +174,7 @@ class FileUploadController extends Controller
             'folder' => $folder,
         ]);
     }
+
 
     /**
      * Notify the admin about the uploaded file.
