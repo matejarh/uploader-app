@@ -18,7 +18,7 @@ Uploader App is a Laravel application for uploading, organizing, and managing co
 - User registration and login
 - Role-based access control with Spatie permissions
 - Company-aware document upload workflow
-- Document archive support for inactive records
+- Reversible document archiving with ownership-aware permissions
 - User and company management
 - Two-factor authentication
 - Dark mode support
@@ -27,7 +27,7 @@ Uploader App is a Laravel application for uploading, organizing, and managing co
 
 - PHP 8.3+
 - Composer
-- Node.js + npm
+- Node.js 22+ and npm
 - MySQL or another supported Laravel database
 
 ## Installation
@@ -65,6 +65,21 @@ Uploader App is a Laravel application for uploading, organizing, and managing co
     php artisan serve
     ```
 
+### Local email testing with Mailpit
+
+To capture outgoing email locally, run Mailpit and set these values in `.env`:
+
+```dotenv
+MAIL_MAILER=smtp
+MAIL_SCHEME=null
+MAIL_HOST=127.0.0.1
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+```
+
+View captured messages at [http://localhost:8025](http://localhost:8025).
+
 ## Registration and roles
 
 New users are created through Fortify registration. The default `client` role is assigned only when that role actually exists in the database.
@@ -74,19 +89,30 @@ This prevents registration from crashing on a fresh install before permissions a
 ## Usage
 
 1. Register a new user or log in with an existing account.
-2. Upload documents from the dashboard or documents screen.
-3. Use the archive toggle to hide documents from the active list without deleting them.
-4. Manage users and roles in the admin area.
-5. Enable two-factor authentication for added security.
+2. Upload documents from the dashboard or Documents screen.
+3. Use the **Archive** action to move a document out of the active list. Its record and file remain available.
+4. Open `/documents/archive` and use **Restore** to return an archived document to the active list. **Delete** remains a separate permanent operation.
+5. Manage users and roles in the admin area.
+6. Enable two-factor authentication for added security.
 
-## Running Tests
+## Verification
 
-To run the full suite:
+Run the full backend test suite:
 ```sh
 php artisan test
 ```
 
-For the most relevant checks around registration and uploads:
+Run the focused archive tests:
+```sh
+php artisan test --filter=DocumentArchiveTest
+```
+
+Build the frontend assets:
+```sh
+npm run build
+```
+
+For registration and upload checks:
 ```sh
 php artisan test tests/Feature/RegistrationTest.php tests/Feature/ProfileInformationTest.php tests/Feature/FileUploadTest.php
 ```
