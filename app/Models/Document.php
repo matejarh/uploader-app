@@ -18,6 +18,8 @@ class Document extends Model
         'folder',
         'processed',
         'archived',
+        'archived_at',
+        'archived_by',
     ];
 
     protected $appends = [
@@ -29,6 +31,7 @@ class Document extends Model
     protected $casts = [
         'processed' => 'boolean',
         'archived' => 'boolean',
+        'archived_at' => 'datetime',
     ];
 
     protected $with = ['company'];
@@ -65,6 +68,11 @@ class Document extends Model
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function archivedBy()
+    {
+        return $this->belongsTo(User::class, 'archived_by');
     }
 
     /**

@@ -44,6 +44,10 @@ class PermissionsSeeder extends Seeder
             'view any document',
             'delete any document',
             'delete own documents',
+            'archive any document',
+            'archive own documents',
+            'restore any document',
+            'restore own documents',
         ];
 
         foreach ($permissions as $permission) {
@@ -57,10 +61,27 @@ class PermissionsSeeder extends Seeder
     protected function createRoles(): void
     {
         $client = Role::create(['name' => 'client']);
-        $client->givePermissionTo(['upload documents', 'view own documents', 'delete own documents']);
+        $client->givePermissionTo([
+            'upload documents',
+            'view own documents',
+            'delete own documents',
+            'archive own documents',
+            'restore own documents',
+        ]);
 
         $admin = Role::create(['name' => 'admin']);
-        $admin->givePermissionTo(['add users', 'edit users', 'delete users', 'view any document', 'delete any document','upload documents', 'view own documents', 'delete own documents']);
+        $admin->givePermissionTo([
+            'add users',
+            'edit users',
+            'delete users',
+            'view any document',
+            'delete any document',
+            'upload documents',
+            'view own documents',
+            'delete own documents',
+            'archive any document',
+            'restore any document',
+        ]);
 
         // gets all permissions via Gate::before rule; see AuthServiceProvider
         $superAdmin = Role::create(['name' => 'super-admin']);

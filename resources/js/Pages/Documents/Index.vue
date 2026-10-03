@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import { Link } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { ArrowUpTrayIcon } from '@heroicons/vue/24/solid'
 import SecondaryButton from '@/Components/SecondaryButton.vue'
@@ -12,6 +13,17 @@ const props = defineProps({
     documents: Object,
     links: String,
     filters: Object,
+    archived: {
+        type: Boolean,
+        default: false,
+    },
+    currentUserId: Number,
+    canDeleteAnyDocuments: Boolean,
+    canDeleteOwnDocuments: Boolean,
+    canArchiveAnyDocuments: Boolean,
+    canArchiveOwnDocuments: Boolean,
+    canRestoreAnyDocuments: Boolean,
+    canRestoreOwnDocuments: Boolean,
     loadUser: {
         type: Boolean,
         default: true,
@@ -31,13 +43,13 @@ const handleFileUploaded = (status) => {
 </script>
 
 <template>
-    <AppLayout :title="__('Documents')">
+    <AppLayout :title="props.archived ? __('Archive') : __('Documents')">
         <template #header>
         <div class="flex items-center justify-between">
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Documents') }} <span  v-show="filters.najdi">za <span class="italic">{{ filters.najdi }}</span></span>
+                {{ props.archived ? __('Archive') : __('Documents') }} <span v-show="props.filters.najdi">za <span class="italic">{{ props.filters.najdi }}</span></span>
             </h2>
-            <Tooltip :text="__('Upload Document')">
+            <Tooltip v-if="!props.archived" :text="__('Upload Document')">
                 <SecondaryButton @click="showingUploader = true">
                     <ArrowUpTrayIcon class="w-5 h-5" />
                 </SecondaryButton>
@@ -50,8 +62,40 @@ const handleFileUploaded = (status) => {
 
         <div>
             <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+                <nav class="mb-6 flex border-b border-gray-200 dark:border-gray-700" aria-label="Documents">
+                    <Link
+                        :href="route('documents.index')"
+                        :aria-current="props.archived ? null : 'page'"
+                        class="border-b-2 px-4 py-2 text-sm font-medium"
+                        :class="props.archived ? 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' : 'border-indigo-500 text-indigo-600 dark:text-indigo-400'"
+                    >
+                        {{ __('Documents') }}
+                    </Link>
+                    <Link
+                        :href="route('documents.archive.index')"
+                        :aria-current="props.archived ? 'page' : null"
+                        class="border-b-2 px-4 py-2 text-sm font-medium"
+                        :class="props.archived ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'"
+                    >
+                        {{ __('Archive') }}
+                    </Link>
+                </nav>
                 <div class="text-gray-800 dark:text-gray-200 ">
-                    <TableList :list="documents" :links="links" :load-user="loadUser" :filters="filters" @create="showingUploader = true" />
+                    <TableList
+                        :list="props.documents"
+                        :links="props.links"
+                        :load-user="props.loadUser"
+                        :filters="props.filters"
+                        :archived="props.archived"
+                        :current-user-id="props.currentUserId"
+                        :can-delete-any-documents="props.canDeleteAnyDocuments"
+                        :can-delete-own-documents="props.canDeleteOwnDocuments"
+                        :can-archive-any-documents="props.canArchiveAnyDocuments"
+                        :can-archive-own-documents="props.canArchiveOwnDocuments"
+                        :can-restore-any-documents="props.canRestoreAnyDocuments"
+                        :can-restore-own-documents="props.canRestoreOwnDocuments"
+                        @create="showingUploader = true"
+                    />
                 </div>
             </div>
         </div>

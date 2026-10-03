@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Document;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -10,16 +11,6 @@ use Inertia\Inertia;
 
 class DocumentsController extends Controller
 {
-    public function __construct()
-    {
-        // Define middleware for permissions
-        $this->middleware = [
-            'index' => ['permission:view all documents'],
-            'show' => ['permission:view own documents'],
-            'destroy' => ['permission:delete any document', 'permission:delete own documents'],
-        ];
-    }
-
     /**
      * Display a listing of the documents.
      *
@@ -28,31 +19,53 @@ class DocumentsController extends Controller
      */
     public function index(Request $request)
     {
-        $showArchived = $request->boolean('archived');
+        return $this->documentIndex($request, false);
+    }
 
-        // Create a query to filter and sort documents
+    public function archiveIndex(Request $request)
+    {
+        return $this->documentIndex($request, true);
+    }
+
+    private function documentIndex(Request $request, bool $showArchived)
+    {
+        $user = Auth::user();
+        $canViewAnyDocuments = $this->canViewAnyDocuments($user);
+
+        abort_unless(
+            $canViewAnyDocuments || $user->can('view own documents'),
+            403,
+            __('Unauthorized action.')
+        );
+
         $query = Document::with('user')->with('company')
-            ->when($showArchived, fn ($query) => $query->where('archived', true), fn ($query) => $query->where('archived', false))
-            ->filter($request->only(['najdi']))
-            ->latest();
+            ->where('archived', $showArchived)
+            ->filter($request->only(['najdi']));
 
-        // Restrict query to the authenticated user's documents if they don't have permission to view all documents
-        if (!Auth::user()->can('view all documents')) {
-            $query->where('user_id', Auth::id());
+        if (! $canViewAnyDocuments) {
+            $query->where('user_id', $user->id);
         }
 
-        // Paginate the results
-        $documents = $query->paginate(10)->onEachSide(3);
+        $showArchived
+            ? $query->orderByDesc('archived_at')->latest('created_at')
+            : $query->latest();
 
-        // Render the documents index view with the documents and filters
+        $documents = $query->paginate(10)->withQueryString()->onEachSide(3);
+
         return Inertia::render('Documents/Index', [
             'documents' => $documents,
             'filters' => $request->only(['najdi']),
+            'archived' => $showArchived,
+            'currentUserId' => $user->id,
             'links' => $documents->links('vendor.pagination.tailwind-table', [
                 'onEachSide' => 3,
             ])->toHtml(),
-            'canDeleteDocuments' => Auth::user()->can('delete any document'),
-            'canDeleteOwnDocuments' => Auth::user()->can('delete own documents'),
+            'canDeleteAnyDocuments' => $user->can('delete any document'),
+            'canDeleteOwnDocuments' => $user->can('delete own documents'),
+            'canArchiveAnyDocuments' => $user->can('archive any document'),
+            'canArchiveOwnDocuments' => $user->can('archive own documents'),
+            'canRestoreAnyDocuments' => $user->can('restore any document'),
+            'canRestoreOwnDocuments' => $user->can('restore own documents'),
         ]);
     }
 
@@ -64,14 +77,12 @@ class DocumentsController extends Controller
      */
     public function show(Document $document)
     {
-        // Check if the authenticated user can view the document
-        if (Auth::user()->can('view all documents') || (Auth::user()->id === $document->user_id && Auth::user()->can('view own documents'))) {
+        if ($this->canViewDocument(Auth::user(), $document)) {
             return Inertia::render('Documents/Show', [
                 'document' => $document,
             ]);
         }
 
-        // Abort with a 403 status if the user is not authorized
         abort(403, __('Unauthorized action.'));
     }
 
@@ -83,13 +94,43 @@ class DocumentsController extends Controller
      */
     public function download(Document $document)
     {
-        // Check if the authenticated user can download the document
-        if (Auth::user()->can('view all documents') || (Auth::user()->id === $document->user_id && Auth::user()->can('view own documents'))) {
+        if ($this->canViewDocument(Auth::user(), $document)) {
             return Storage::download($document->file_path, $document->file_name);
         }
 
-        // Abort with a 403 status if the user is not authorized
         abort(403, __('Unauthorized action.'));
+    }
+
+    public function archive(Document $document)
+    {
+        $this->authorizeArchiveAction($document, 'archive any document', 'archive own documents');
+
+        $document->fill([
+            'archived' => true,
+            'archived_at' => now(),
+            'archived_by' => Auth::id(),
+        ])->save();
+
+        session()->flash('flash.banner', __('Document archived successfully.'));
+        session()->flash('flash.bannerStyle', 'success');
+
+        return back()->with('success', __('Document archived successfully.'));
+    }
+
+    public function restore(Document $document)
+    {
+        $this->authorizeArchiveAction($document, 'restore any document', 'restore own documents');
+
+        $document->fill([
+            'archived' => false,
+            'archived_at' => null,
+            'archived_by' => null,
+        ])->save();
+
+        session()->flash('flash.banner', __('Document restored successfully.'));
+        session()->flash('flash.bannerStyle', 'success');
+
+        return back()->with('success', __('Document restored successfully.'));
     }
 
     /**
@@ -130,15 +171,7 @@ class DocumentsController extends Controller
         // Check if the authenticated user can update the document
         if (Auth::user()->can('update any document') || (Auth::user()->id === $document->user_id && Auth::user()->can('update own documents'))) {
             if ($request->has('archived')) {
-                $document->archived = $request->boolean('archived');
-                $document->save();
-
-                session()->flash('flash.banner', $document->archived
-                    ? 'Dokument je bil uspešno arhiviran.'
-                    : 'Dokument je bil vrnjen med aktivne dokumente.');
-                session()->flash('flash.bannerStyle', 'success');
-
-                return back()->with('success', 'Document updated successfully.');
+                abort(422, __('Use the dedicated archive or restore action.'));
             }
 
             $document->processed = !$document->processed;
@@ -151,5 +184,29 @@ class DocumentsController extends Controller
         }
 
         abort(403, __('Unauthorized action.'));
+    }
+
+    private function canViewAnyDocuments(User $user): bool
+    {
+        return $user->can('view any document') || $user->can('view all documents');
+    }
+
+    private function canViewDocument(User $user, Document $document): bool
+    {
+        return $this->canViewAnyDocuments($user)
+            || ($user->id === $document->user_id && $user->can('view own documents'));
+    }
+
+    private function authorizeArchiveAction(Document $document, string $anyPermission, string $ownPermission): void
+    {
+        $user = Auth::user();
+        $canChangeDocument = $user->can($anyPermission)
+            || ($user->id === $document->user_id && $user->can($ownPermission));
+
+        abort_unless(
+            $this->canViewDocument($user, $document) && $canChangeDocument,
+            403,
+            __('Unauthorized action.')
+        );
     }
 }

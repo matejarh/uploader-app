@@ -9,6 +9,7 @@ import { MagnifyingGlassIcon } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
     filters: Object,
+    archived: Boolean,
 })
 
 defineEmits(['create'])
@@ -19,7 +20,7 @@ const form = ref({
 
 const debouncedHandler = debounce(() => {
     form.value.najdi = trim(form.value.najdi)
-    router.get(route('documents.index'), pickBy(form.value), {
+    router.get(route(props.archived ? 'documents.archive.index' : 'documents.index'), pickBy(form.value), {
         preserveState: true,
         preserveScroll: true,
     });

@@ -32,6 +32,9 @@ Route::middleware([
     Route::delete('/users/{user}', [UsersController::class, 'destroy'])->name('users.destroy');
 
     Route::get('/documents', [DocumentsController::class, 'index'])->name('documents.index');
+    Route::get('/documents/archive', [DocumentsController::class, 'archiveIndex'])->name('documents.archive.index');
+    Route::post('/documents/{document}/archive', [DocumentsController::class, 'archive'])->name('documents.archive');
+    Route::post('/documents/{document}/restore', [DocumentsController::class, 'restore'])->name('documents.restore');
     Route::get('/documents/{document}', [DocumentsController::class, 'show'])->name('documents.show');
     Route::put('/documents/{document}', [DocumentsController::class, 'update'])->name('documents.update');
     Route::get('/documents/{document}/download', [DocumentsController::class, 'download'])->name('documents.download');

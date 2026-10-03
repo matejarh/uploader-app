@@ -8,6 +8,14 @@ const props = defineProps({
     list: Object,
     links: String,
     filters: Object,
+    archived: Boolean,
+    currentUserId: Number,
+    canDeleteAnyDocuments: Boolean,
+    canDeleteOwnDocuments: Boolean,
+    canArchiveAnyDocuments: Boolean,
+    canArchiveOwnDocuments: Boolean,
+    canRestoreAnyDocuments: Boolean,
+    canRestoreOwnDocuments: Boolean,
     loadUser: {
         type: Boolean,
         default: true,
@@ -31,7 +39,7 @@ const handleUpdate = (document) => {
         <div class="mx-auto max-w-screen-2xl ">
 
             <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
-                <TableHeader :filters="filters" @create="$emit('create')"  />
+                <TableHeader :filters="filters" :archived="archived" @create="$emit('create')" />
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -44,16 +52,27 @@ const handleUpdate = (document) => {
                                 <th scope="col" class="px-4 py-3">Mapa</th>
                                 <th scope="col" class="px-4 py-3">Datoteka</th>
                                 <th scope="col" class="px-4 py-3" v-if="$page.props.isAdminOrSuperAdmin">Obdelan</th>
-                                <th scope="col" class="px-4 py-3" v-if="$page.props.isAdminOrSuperAdmin">Arhiviran</th>
-
                                 <th scope="col" class="px-4 py-3">
                                     <span class="sr-only">Operacije</span>
                                 </th>
                             </tr>
                         </thead>
                         <tbody class="[&>*:nth-child(even)]:bg-gray-50 dark:[&>*:nth-child(even)]:bg-gray-700">
-                            <TableItem v-for="item, key in list.data" :key="key" :item="item" :load-user="loadUser"
-                                @update="handleUpdate" />
+                            <TableItem
+                                v-for="item, key in list.data"
+                                :key="key"
+                                :item="item"
+                                :load-user="loadUser"
+                                :archived="archived"
+                                :current-user-id="currentUserId"
+                                :can-delete-any-documents="canDeleteAnyDocuments"
+                                :can-delete-own-documents="canDeleteOwnDocuments"
+                                :can-archive-any-documents="canArchiveAnyDocuments"
+                                :can-archive-own-documents="canArchiveOwnDocuments"
+                                :can-restore-any-documents="canRestoreAnyDocuments"
+                                :can-restore-own-documents="canRestoreOwnDocuments"
+                                @update="handleUpdate"
+                            />
                         </tbody>
                     </table>
                 </div>
